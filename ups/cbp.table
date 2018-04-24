@@ -1,0 +1,6 @@
+setupRequired(numpy)
+setupRequired(geom)
+setupRequired(sphgeom)
+setupRequired(afw)
+
+envPrepend(PYTHONPATH, ${PRODUCT_DIR}/python)
