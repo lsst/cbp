@@ -227,7 +227,7 @@ class SampleCoordinateConverter:
         """
         radialCoeff = np.array([0.0, 1.0, 0.0, 0.925]) / self.plateScale.asRadians()
         fieldAngleToFocalPlane = makeRadialTransform(radialCoeff)
-        focalPlaneToFieldAngle = fieldAngleToFocalPlane.getInverse()
+        focalPlaneToFieldAngle = fieldAngleToFocalPlane.inverted()
         cameraTransformMap = cameraGeom.TransformMap(cameraGeom.FOCAL_PLANE,
                                                      {cameraGeom.FIELD_ANGLE: focalPlaneToFieldAngle})
         detectorList = self._makeDetectorList(focalPlaneToFieldAngle)
