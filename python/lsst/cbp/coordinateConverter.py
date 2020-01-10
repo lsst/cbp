@@ -34,7 +34,8 @@ from .beamInfo import BeamInfo
 
 # Record errors from setFocalFieldAngle?
 _RecordErrors = False
-# list of errors from the root finder: error (abs value, radians), pupilPos, focalFieldAngle, beam
+# List of errors from the root finder:
+# error (abs value, radians), pupilPos, focalFieldAngle, beam.
 _ErrorList = None
 
 
@@ -168,10 +169,11 @@ class CoordinateConverter:
     for one beam:
 
     - Offset the position of the beam on the pupil.
-    - Offset the position of the spot on the focal plane, expressed in different
-        ways depending on the method. In most cases you will probably
-        want to specify the offset of the spot in pixels on a sepecified
-        detector, in which case call `offsetFocalPlanePos`.
+    - Offset the position of the spot on the focal plane,
+        expressed in different ways depending on the method.
+        In most cases you will probably want to specify
+        the offset of the spot in pixels on a sepecified detector,
+        in which case call `offsetFocalPlanePos`.
 
     These offset methods simply update the pointing of the telescope and
     CBP (`telAzAltObserved`, `telRotObserved` and `cbpAzAltObserved`).
@@ -186,8 +188,9 @@ class CoordinateConverter:
         self.maskInfo = maskInfo
         self.cameraGeom = cameraGeom
         self._fieldAngleToFocalPlane = cameraGeom.getTransform(FIELD_ANGLE, FOCAL_PLANE)
-        # amount to add to default hole position to compute telescope rotator angle (pixels);
-        # I found that a wide range of values works, with (1, 0) comfortably in that range
+        # Amount to add to default hole position to compute
+        # telescope rotator angle (pixels); I found that a wide range
+        # of values works, with (1, 0) comfortably in that range.
         self._holeDelta = Extent2D(1, 0)
         self._telAzAlt = SpherePoint(np.nan, np.nan, radians)
         self._telRot = np.nan*radians
@@ -217,17 +220,16 @@ class CoordinateConverter:
         else:
             focalFieldAngle = Point2D(*focalFieldAngle)
 
-        # if the field angle is too small to matter, and too small
-        # to determine its orientation, treat it as 0,0 (no iteration required)
+        # If the field angle is too small to matter and too small to determine
+        # its orientation, treat it as 0,0 (no iteration required).
         if math.hypot(*focalFieldAngle) < 1e-10:
             self.setPupilFieldAngle(pupilPos, focalFieldAngle, beam)
             return
 
-        # minimize the field angle error as a function of the orientation
+        # Minimize the field angle error as a function of the orientation
         # of the field angle; start with rotation = 0 so pupil field angle
-        # equals focal plane field angle
-
-        # record initial conditions, in case the miminizer fails to converge
+        # equals focal plane field angle.
+        # Record initial conditions, in case the miminizer fails to converge.
         telAzAlt = self._telAzAlt
         telRot = self._telRot
         cbpAzAlt = self._cbpAzAlt
@@ -293,7 +295,8 @@ class CoordinateConverter:
 
             if not iterResult.success:
                 raise RuntimeError("Iteration failed to converge")
-            # call the function again to make sure the final value found is the one that is used
+            # Call the function again to make sure the final value found
+            # is the one that is used.
             err = funcToFindRoot(iterResult.x)
 
             global _RecordErrors, _ErrorList
@@ -673,9 +676,10 @@ class CoordinateConverter:
         rotatorAangle : `lsst.geom.Angle`
             Internal camera rotator angle.
         """
-        # compute focal plane position, ignoring self._telRot,
-        # for two holes separated by x in the CBP equidistant from the center;
-        # compute the angle that would make the spots line up with the x axis in the focal plane
+        # Compute focal plane position, ignoring self._telRot,
+        # for two holes separated by x in the CBP equidistant from the center.
+        # Compute the angle that would make the spots line up
+        # with the x axis in the focal plane.
         ctrHolePos = Point2D(0, 0)
         holeDelta = Extent2D(*coordUtils.getFlippedPos(self._holeDelta, flipX=self.config.cbpFlipX))
         holePos1 = ctrHolePos - holeDelta
@@ -726,8 +730,10 @@ class CoordinateConverter:
         beamVectorinCtrPupil : `numpy.array` of 3 `float`
             Beam vector in telescope centered pupil frame (mm).
         """
-        # beamPosVec is a vector in the telescope pupil frame from the center of the centered pupil plane
-        # to the point on that plane specified by beamPosAtCtr; this vector lies in the centered pupil plane
+        # beamPosVec is a vector in the telescope pupil frame
+        # from the center of the centered pupil plane
+        # to the point on that plane specified by beamPosAtCtr.
+        # This vector lies in the centered pupil plane.
         beamPosVec = coordUtils.pupilPositionToVector(beamPosAtCtr, self.config.telFlipX)
         beamUnitVec = coordUtils.fieldAngleToVector(pupilFieldAngle, self.config.telFlipX)
         abyz = beamPosVec[1]*beamUnitVec[1] + beamPosVec[2]*beamUnitVec[2]
@@ -754,8 +760,10 @@ class CoordinateConverter:
             Vector in the telescope pupil frame from the center
             of the pupil frame to the center of the CBP (mm).
         """
-        # beamPosVec is a vector in the telescope pupil frame from the center of the centered pupil plane
-        # to the point on that plane specified by beamPosAtCtr; this vector lies in the centered pupil plane
+        # beamPosVec is a vector in the telescope pupil frame
+        # from the center of the centered pupil plane
+        # to the point on that plane specified by beamPosAtCtr.
+        # This vector lies in the centered pupil plane.
         beamPosVec = coordUtils.pupilPositionToVector(beamPosAtCtr, self.config.telFlipX)
         return beamVectorInCtrPupil + beamPosVec
 
@@ -814,21 +822,22 @@ class CoordinateConverter:
         if holePos is None:
             holePos = self.maskInfo.getHolePos(beam)
 
-        # compute focal plane field angle of the beam
+        # Compute focal plane field angle of the beam.
         beamPupilUnitVector = self._computeTelPupilUnitVectorFromHolePos(holePos, telAzAlt=self._telAzAlt,
                                                                          cbpAzAlt=self._cbpAzAlt)
         pupilFieldAngle = coordUtils.vectorToFieldAngle(beamPupilUnitVector, self.config.telFlipX)
         focalFieldAngle = self._rotatePupilToFocalPlane(pupilFieldAngle)
 
-        # compute focal plane position of the beam
+        # Compute focal plane position of the beam.
         focalPlanePos = self._fieldAngleToFocalPlane.applyForward(Point2D(*pupilFieldAngle))
         isOnFocalPlane = math.hypot(*focalPlanePos) < self.config.telFocalPlaneDiameter
 
-        # vector from telescope centered pupil to actual pupil
+        # Vector from telescope centered pupil to actual pupil.
         pupilOffset = np.array((self.config.telPupilOffset, 0, 0), dtype=float)
 
-        # compute the pupil position of the beam on the actual telescope pupil
-        # (first compute on the centered pupil, then subtract the pupil offset)
+        # Compute the pupil position of the beam on the actual telescope pupil
+        # (first compute on the centered pupil,
+        # then subtract the pupil offset).
         cbpPositionPupil = coordUtils.convertVectorFromBaseToPupil(
             vectorBase=self.config.cbpPosition,
             pupilAzAlt=self._telAzAlt,

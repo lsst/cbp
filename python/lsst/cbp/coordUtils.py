@@ -31,13 +31,13 @@ import numpy as np
 from lsst.sphgeom import Vector3d
 from lsst.geom import SpherePoint, radians
 
-# error data from computeAzAltFromBasePupil;
-# error is determined by calling convertVectorFromPupilToBase
+# Error data from computeAzAltFromBasePupil.
+# Error is determined by calling convertVectorFromPupilToBase
 # using the az/alt computed by computeAzAltFromBasePupil
-# and measuring the separation between that base vector and the input
+# and measuring the separation between that base vector and the input.
 _RecordError = False  # record errors?
-_ErrorLimitArcsec = None  # only record errors larger than this
-_ErrorList = None  # a list of tuples: (errorArcsec, vectorBase, vectorPupil)
+_ErrorLimitArcsec = None  # Only record errors larger than this.
+_ErrorList = None  # A list of tuples: (errorArcsec, vectorBase, vectorPupil).
 
 ZeroSpherePoint = SpherePoint(0, 0, radians)
 
@@ -326,7 +326,7 @@ def computeAzAltFromBasePupil(vectorBase, vectorPupil):
     if vectorPupil[0] <= 0:
         raise ValueError("vectorPupil x must be > 0: {}".format(vectorPupil))
 
-    # compute telescope altitude using:
+    # Compute telescope altitude using:
     #
     #     base z = sin(alt) pupil x + cos(alt) pupil z
     #
@@ -345,15 +345,17 @@ def computeAzAltFromBasePupil(vectorBase, vectorPupil):
         sinAlt = factor*(addend1 - addend2)
     alt = math.asin(sinAlt)*radians
 
-    # Consider the spherical triangle connecting the telescope pointing (pupil frame x axis),
-    # the vector, and zenith (the base frame z axis). The length of all sides is known:
+    # Consider the spherical triangle connecting the telescope pointing
+    # (pupil frame x axis), the vector, and zenith (the base frame z axis).
+    # The length of all sides is known:
     # - sideA is the side connecting the vector to the pupil frame x axis
     #         (since 0, 0 is a unit vector pointing along pupil frame x);
     # - sideB is the side connecting telescope pointing to the zenith
     # - sideC is the side connecting the vector to the zenith
     #
-    # Solve for angleA, the angle between the sides at the zenith; that angle is the difference
-    # in azimuth between the telescope pointing and the azimuth of the base vector.
+    # Solve for angleA, the angle between the sides at the zenith;
+    # that angle is the difference in azimuth between the telescope pointing
+    # and the azimuth of the base vector.
     sideA = SpherePoint(0, 0, radians).separation(spPupil).asRadians()
     sideB = math.pi/2 - alt.asRadians()
     sideC = math.pi/2 - spBase[1].asRadians()

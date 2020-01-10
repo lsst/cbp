@@ -34,7 +34,7 @@ class MaskInfoTestCase(lsst.utils.tests.TestCase):
             (-3, 4),
             (5, 6),
         )
-        # a useful set of hole names that are not the default
+        # A useful set of hole names that are not the default.
         self.holeNames = ["beam{}".format(i) for i in range(len(self.holePositions))]
 
     def testBasics(self):
@@ -76,7 +76,8 @@ class MaskInfoTestCase(lsst.utils.tests.TestCase):
                      holeNames=self.holeNames)
 
         # defaultHole must be a valid name or index,
-        # but unlike None, this raises LookupError so it has to be a separate test
+        # but unlike None, this raises LookupError
+        # so it has to be a separate test.
         for invalidHole in (len(self.holePositions), "bad"):
             with self.assertRaises(LookupError):
                 MaskInfo(name="test", defaultHole=invalidHole, holePositions=self.holePositions)
@@ -84,7 +85,7 @@ class MaskInfoTestCase(lsst.utils.tests.TestCase):
                 MaskInfo(name="test", defaultHole=invalidHole, holePositions=self.holePositions,
                          holeNames=self.holeNames)
 
-        # the number of hole names must match the number of hole positions
+        # The number of hole names must match the number of hole positions.
         holeNamesTooShort = self.holeNames[0: -1]
         with self.assertRaises(ValueError):
             MaskInfo(name="test", defaultHole=0, holePositions=self.holePositions,

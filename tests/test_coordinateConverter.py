@@ -187,7 +187,8 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
         """
         self.cco.setPupilFieldAngle(pupilPos=(0, 0))
 
-        # the telescope should be pointed at the center of the CBP and vice-versa
+        # The telescope should be pointed at the center of the CBP
+        # and vice-versa.
         # NOTE: It would be nice to get better than the 0.0028" that I measure
         self.assertSpherePointsAlmostEqual(self.cco.telAzAltInternal,
                                            SpherePoint(Vector3d(*self.cco.config.cbpPosition)),
@@ -198,8 +199,9 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
 
         self.assertAnglesAlmostEqual(self.cco.telRotInternal, 0*degrees)
 
-        # beam 0 should be pointed to the center of the pupil, normal to the pupil
-        # and land on the center of the focal plane and the center of detector D0
+        # Beam 0 should be pointed to the center of the pupil,
+        # normal to the pupil, and land on the center of the focal plane
+        # and the center of detector D0.
         beamInfo0 = self.cco[0]
         self.assertEqual(beamInfo0.name, "beam0")
         self.assertPairsAlmostEqual(beamInfo0.holePos, (0, 0))
@@ -217,21 +219,21 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
         detector34Pos = bboxd.getMin() + bboxd.getDimensions()*0.75
         self.assertPairsAlmostEqual(beamInfo0.detectorPos, detectorCtrPos, maxDiff=self.maxDetectorPosErr)
 
-        # beam 1 should land on detector D0, 3/4 of the way from LL to UR
+        # Beam 1 should land on detector D0, 3/4 of the way from LL to UR.
         beamInfo1 = self.cco[1]
         self.assertEqual(beamInfo1.name, "beam1")
         self.assertTrue(beamInfo1.isOnDetector)
         self.assertEqual(beamInfo1.detectorName, "D0")
         self.assertPairsAlmostEqual(beamInfo1.detectorPos, detector34Pos, maxDiff=self.maxDetectorPosErr)
 
-        # beam 2 should land on the center of detector D1
+        # Beam 2 should land on the center of detector D1.
         beamInfo2 = self.cco[2]
         self.assertEqual(beamInfo2.name, "beam2")
         self.assertTrue(beamInfo2.isOnDetector)
         self.assertEqual(beamInfo2.detectorName, "D1")
         self.assertPairsAlmostEqual(beamInfo2.detectorPos, detectorCtrPos, maxDiff=self.maxDetectorPosErr)
 
-        # beam 3 should land on detector D1, 3/4 of the way from LL to UR
+        # Beam 3 should land on detector D1, 3/4 of the way from LL to UR.
         beamInfo3 = self.cco[3]
         self.assertEqual(beamInfo3.name, "beam3")
         self.assertTrue(beamInfo3.isOnDetector)
@@ -245,8 +247,8 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
         self.assertEqual(beamInfo4.detectorName, "D2")
         self.assertPairsAlmostEqual(beamInfo4.detectorPos, detectorCtrPos, maxDiff=self.maxDetectorPosErr)
 
-        # beam 5 should land on detector D2, 3/4 of the way from LL to UR
-        # The measured error is 5e-7 pixels, which is small enough not to worry.
+        # Beam 5 should land on detector D2, 3/4 of the way from LL to UR
+        # The measured error is 5e-7 pixels, which is fine.
         # I strongly suspect it is due to inaccuracy in the inverse of the
         # field angle to focal plane transform.
         beamInfo5 = self.cco[5]
@@ -301,7 +303,7 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
     def testSetOffDetector(self):
         """Test a case where BeamInfo.isOnDetector should be False"""
         detector = self.cco.cameraGeom[0].getName()
-        # pick a position that is not covered by our sparse focal plane
+        # Pick a position that is not covered by our sparse focal plane.
         detectorPos = (-20000, 0)
         self.cco.setDetectorPos(pupilPos=(0, 0), detectorPos=detectorPos, detector=detector, beam=0)
         for beamInfo in self.cco:
@@ -324,20 +326,23 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
                 self.assertPairsAlmostEqual(beamInfo.pupilPos, pupilPos, maxDiff=self.maxPupilPosErr)
 
     def testSetPupilFieldAngleZero(self):
-        """Test setPupilFieldAngle for zero field angle and various points on the pupil
+        """Test setPupilFieldAngle for zero field angle
+        and various points on the pupil.
         """
         for pupilPos in ((0, 5000), (-5000, 0), (5000, -5000)):
             with self.subTest(pupilPos=pupilPos):
                 self.cco.setPupilFieldAngle(pupilPos=pupilPos)
 
-                # the telescope should be pointing in the opposite direction of the CBP
+                # The telescope should be pointing in the opposite direction
+                # of the CBP.
                 telDir = self.cco.telAzAltInternal.getVector()
                 cbpDir = self.cco.cbpAzAltInternal.getVector()
                 negativeCbpDir = -np.array(cbpDir, dtype=float)
                 np.testing.assert_allclose(telDir, negativeCbpDir, atol=1e-15)
 
-                # beam 0 should be pointed to the center of the pupil, normal to the pupil
-                # and land on the center of the focal plane, which is also the center of detector D0
+                # Beam 0 should be pointed to the center of the pupil,
+                # normal to the pupil, and land on the center of
+                # the focal plane, which is also the center of detector D0.
                 beamInfo0 = self.cco[0]
                 self.assertEqual(beamInfo0.name, "beam0")
                 self.assertPairsAlmostEqual(beamInfo0.holePos, (0, 0))
@@ -358,7 +363,8 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
                 self.assertPairsAlmostEqual(beamInfo0.detectorPos, detectorCtrPos,
                                             maxDiff=self.maxDetectorPosErr)
 
-                # beam 1 should land on detector D0, 3/4 of the way from LL to UR
+                # Beam 1 should land on detector D0,
+                # 3/4 of the way from LL to UR.
                 beamInfo1 = self.cco["beam1"]
                 self.assertEqual(beamInfo1.name, "beam1")
                 self.assertTrue(beamInfo1.isOnDetector)
@@ -366,7 +372,7 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
                 self.assertPairsAlmostEqual(beamInfo1.detectorPos, detector34Pos,
                                             maxDiff=self.maxDetectorPosErr)
 
-                # beam 2 should land on the center of detector D1
+                # Beam 2 should land on the center of detector D1.
                 beamInfo2 = self.cco["beam2"]
                 self.assertEqual(beamInfo2.name, "beam2")
                 self.assertTrue(beamInfo2.isOnDetector)
@@ -374,7 +380,8 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
                 self.assertPairsAlmostEqual(beamInfo2.detectorPos, detectorCtrPos,
                                             maxDiff=self.maxDetectorPosErr)
 
-                # beam 3 should land on detector D1, 3/4 of the way from LL to UR
+                # Beam 3 should land on detector D1,
+                # 3/4 of the way from LL to UR.
                 beamInfo3 = self.cco["beam3"]
                 self.assertEqual(beamInfo3.name, "beam3")
                 self.assertTrue(beamInfo3.isOnDetector)
@@ -382,7 +389,7 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
                 self.assertPairsAlmostEqual(beamInfo3.detectorPos, detector34Pos,
                                             maxDiff=self.maxDetectorPosErr)
 
-                # beam 4 should land on the center of detector D2
+                # Beam 4 should land on the center of detector D2.
                 beamInfo4 = self.cco["beam4"]
                 self.assertEqual(beamInfo4.name, "beam4")
                 self.assertTrue(beamInfo4.isOnDetector)
@@ -390,7 +397,8 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
                 self.assertPairsAlmostEqual(beamInfo4.detectorPos, detectorCtrPos,
                                             maxDiff=self.maxDetectorPosErr)
 
-                # beam 5 should land on detector D2, 3/4 of the way from LL to UR
+                # Beam 5 should land on detector D2,
+                # 3/4 of the way from LL to UR.
                 beamInfo5 = self.cco["beam5"]
                 self.assertEqual(beamInfo5.name, "beam5")
                 self.assertTrue(beamInfo5.isOnDetector)
@@ -416,10 +424,10 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
         """Test cbpAzAltObserved, telAzAltObserved, telRotObserved
         and their Internal equivalents
         """
-        # set non-trivial scale and offset for all axes;
-        # azimuth and rotator scales must be ±1 in order to handle wrap correctly;
-        # altitude scales should be nearly 1 and altitude offsets should be small
-        # to avoid hitting limits
+        # Set non-trivial scale and offset for all axes;
+        # azimuth and rotator scales must be ±1 to handle wrap correctly;
+        # altitude scales should be nearly 1,
+        # and altitude offsets should be small to avoid hitting limits.
         self.cco.config.cbpAzAltScale = (-1, 0.98)
         self.cco.config.cbpAzAltOffset = (33.2*degrees, -2.67*degrees)
         self.cco.config.telAzAltScale = (1, 0.95)
@@ -433,8 +441,8 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
             self.cco.cbpAzAltObserved = cbpAzAltObserved
             self.assertSpherePointsAlmostEqual(self.cco.cbpAzAltObserved, cbpAzAltObserved)
 
-            # observed angle = internal angle * scale + offset
-            # internal angle = (observed angle - offset) / scale
+            # Observed angle = internal angle * scale + offset.
+            # Internal angle = (observed angle - offset) / scale.
             predictedCbpAzAltInternal = SpherePoint(
                 *[(cbpAzAltObserved[i] - self.cco.config.cbpAzAltOffset[i])/self.cco.config.cbpAzAltScale[i]
                   for i in range(2)])
@@ -458,9 +466,9 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
             self.assertAnglesAlmostEqual(self.cco.telRotInternal, predictedRotInternal)
 
     def testInBounds(self):
-        """Test the telInBounds and cbpInBounds properties
+        """Test the telInBounds and cbpInBounds properties.
         """
-        # shrink the upper altitude limits so there's somewhere to go
+        # Shrink the upper altitude limits so there's somewhere to go.
         self.cco.config.cbpAltitudeLimits = (-88*degrees, 88*degrees)
         self.cco.config.telAltitudeLimits = (5*degrees, 85*degrees)
         self.cco.setFocalPlanePos((0, 0))
@@ -518,8 +526,9 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
         beam = 3  # pick a beam that is a bit off center
         for telFlipX, cbpFlipX in itertools.product((False, True), (False, True)):
             with self.subTest(telFlipX=telFlipX, cbpFlipX=cbpFlipX):
-                # flip pupilPos and fieldAngle so that everything else is identical
-                # e.g. all 3-D vectors; that makes debugging easier if the test fails
+                # Flip pupilPos and fieldAngle so that everything else
+                # is identical, e.g. all 3-D vectors.
+                # This makes debugging easier if the test fails.
                 unflippedPupilPos = (5000, -2500)
                 unflippedPupilFieldAngle = (0.1, 0.12)
                 pupilPos = coordUtils.getFlippedPos(unflippedPupilPos, flipX=telFlipX)
@@ -559,7 +568,7 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
 
         The definition of correct orientation is that two points to the
         left and right of the CBP center (by a buried delta)
-        line up in the focal plane. We'll just use +/-1 for our delta
+        line up in the focal plane. We'll just use +/-1 for our delta.
         """
         ctrHolePos = Point2D(0, 0)
         dx = -1 if self.cco.config.cbpFlipX else 1

@@ -72,8 +72,9 @@ class ComputeHolePositionsTestCase(lsst.utils.tests.TestCase):
         detectorNames = set(self.cco.cameraGeom.getNameIter())
         numDetectors = len(self.cco.cameraGeom)
         flippedHolePositions = None  # garbage value; compute correct value the first time through the loop
-        for cbpFlipX in (False, True):  # False must come first so flippedHolePositions
-                                        # can be computed before it is needed
+        for cbpFlipX in (False, True):
+            # Note: test False first so flippedHolePositions
+            # can be computed before it is needed.
             self.cco.config.cbpFlipX = cbpFlipX
             holePositions = computeHolePositions(
                 detectorNames=None,
@@ -84,7 +85,8 @@ class ComputeHolePositionsTestCase(lsst.utils.tests.TestCase):
             )
             if not cbpFlipX:
                 # hopePositions are not flipped; compute flipped hole positions
-                # so they can be compared to holePositions when cbpFlipX is True
+                # so they can be compared to holePositions
+                # when cbpFlipX is True.
                 flippedHolePositions = [(-val[0], val[1]) for val in holePositions]
             else:
                 self.assertPairListsAlmostEqual(holePositions, flippedHolePositions)

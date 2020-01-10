@@ -147,7 +147,8 @@ class CoordinateConverterTestCase(lsst.utils.tests.TestCase):
 
         self.checkCbpDistance(config)
 
-        # try setting a different cbpPosition; cbpPosition and cbpDistance should update accordingly
+        # Try setting a different cbpPosition; cbpPosition and cbpDistance
+        # should update accordingly.
         cbpPosition2 = config.cbpPosition + np.array((1.5, -3.2, 9.4))
         config.cbpPosition = cbpPosition2
         np.testing.assert_equal(config.cbpPosition, cbpPosition2)
@@ -162,8 +163,9 @@ class CoordinateConverterTestCase(lsst.utils.tests.TestCase):
             The configuration to check
         """
 
-        # this is less accurate than np.linalg.norm, as used by CoordinateConverterConfig,
-        # but is fine for unit tests and it's nice to have a different implementation
+        # This is less accurate than np.linalg.norm,
+        # as used by CoordinateConverterConfig, but is fine for unit tests
+        # and it's nice to have a different implementation.
         cbpPosition = config.cbpPosition
         desiredCbpDistance = math.sqrt(cbpPosition[0]**2 + cbpPosition[1]**2 + cbpPosition[2]**2)
         self.assertAlmostEqual(config.cbpDistance, desiredCbpDistance)
