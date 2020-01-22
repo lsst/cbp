@@ -72,10 +72,12 @@ def computeHolePositions(detectorNames, detectorPositions, cameraGeom, cbpFlipX,
         pixelsToFieldAngle = cameraGeom.getTransform(pixelSys, FIELD_ANGLE)
         telFieldAngleList = pixelsToFieldAngle.applyForward(pixelPosList)
         for telFieldAngle in telFieldAngleList:
-            # compute hole positions for when the telescope and CBP are pointing at each other;
+            # Compute hole positions for when the telescope and CBP
+            # are pointing at each other;
             # thus CBP pupil vector = telescope pupil vector with z negated.
-            # This is simply a shortcut for setting telAzAlt and cbpAzAlt and then transforming
-            # vectors from tel pupil to base and then to CBP pupil.
+            # This is simply a shortcut for setting telAzAlt and cbpAzAlt,
+            # then transforming vectors from tel pupil to base,
+            # then from base to CBP pupil.
             telVector = fieldAngleToVector(telFieldAngle, False)
             cbpVector = (telVector[0], telVector[1], -telVector[2])
             cbpFieldAngle = vectorToFieldAngle(cbpVector, cbpFlipX)

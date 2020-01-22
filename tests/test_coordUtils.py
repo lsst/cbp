@@ -77,13 +77,13 @@ class CoordUtilsTestCase(lsst.utils.tests.TestCase):
                 vector = coordUtils.fieldAngleToVector(fieldAngle, flipX)
                 self.assertAlmostEqual(np.linalg.norm(vector), 1)
                 if testOrientation:
-                    # orientation should match
+                    # Orientation should match.
                     orientationFromFieldAngle = math.atan2(yrad, signx*xrad)*radians
-                    # field angle x = vector y, field angle y = vector z
+                    # Field angle x = vector y, field angle y = vector z.
                     orientationFromVector = math.atan2(vector[2], vector[1])*radians
                     self.assertAnglesAlmostEqual(orientationFromVector, orientationFromFieldAngle)
 
-                # now test as spherical geometry
+                # Now test as spherical geometry.
                 sp = SpherePoint(Vector3d(*vector))
                 separation = sp00.separation(sp)
                 predictedSeparation = math.hypot(xrad, yrad)*radians
@@ -92,12 +92,12 @@ class CoordUtilsTestCase(lsst.utils.tests.TestCase):
                     bearing = sp00.bearingTo(sp)
                     self.assertAnglesAlmostEqual(orientationFromFieldAngle, bearing)
 
-                # test round trip through vectorToFieldAngle
+                # Test round trip through vectorToFieldAngle.
                 fieldAngleFromVector = coordUtils.vectorToFieldAngle(vector, flipX)
                 np.testing.assert_allclose(fieldAngleFromVector, fieldAngle, atol=1e-15)
 
     def testVectorToFieldAngle(self):
-        # note: more sophisticated cases are tested by testFieldAngleToVector
+        # Note: more sophisticated cases are tested by testFieldAngleToVector.
         for flipX in (False, True):
             signx = -1 if flipX else 1
             for magMultiplier in (0.001, 1, 1000):
@@ -148,8 +148,8 @@ class CoordUtilsTestCase(lsst.utils.tests.TestCase):
     def testComputeShiftedPlanePos(self):
         """Test computeShiftedPlanePos for the general case
         """
-        # in the general case the increase in x and y equals the shift
-        # times y/x, z/x of a vector equivalent to the field angle
+        # In the general case the increase in x and y equals the shift
+        # times y/x, z/x of a vector equivalent to the field angle.
         for ratios in (
             (0.0, 0.0),
             (0.5, 0.5),
@@ -175,35 +175,42 @@ class CoordUtilsTestCase(lsst.utils.tests.TestCase):
         sin30 = math.sin(30 * math.pi / 180)
         for magMultiplier in (0.001, 1, 1000):
             for azAltDeg, vectorPupil, predictedVectorBase in (
-                # at az=0, alt=0: base = pupil
+                # At az=0, alt=0: base = pupil.
                 ((0, 0), (1, 0, 0), (1, 0, 0)),
                 ((0, 0), (0, 1, 0), (0, 1, 0)),
                 ((0, 0), (0, 0, -1), (0, 0, -1)),
                 ((0, 0), (1, -1, 1), (1, -1, 1)),
-                # at az=90, alt=0: base x = pupil -y, base y = pupil x, base z = pupil z
+                # At az=90, alt=0:
+                # base x = pupil -y,
+                # base y = pupil x,
+                # base z = pupil z.
                 ((90, 0), (1, 0, 0), (0, 1, 0)),
                 ((90, 0), (0, 1, 0), (-1, 0, 0)),
                 ((90, 0), (0, 0, -1), (0, 0, -1)),
                 ((90, 0), (1, -1, 1), (1, 1, 1)),
-                # at az=0, alt=90: base x = - pupil z, base y = pupil y, base z = pupil x
+                # At az=0, alt=90:
+                # base x = - pupil z,
+                # base y = pupil y,
+                # base z = pupil x.
                 ((0, 90), (1, 0, 0), (0, 0, 1)),
                 ((0, 90), (0, 1, 0), (0, 1, 0)),
                 ((0, 90), (0, 0, -1), (1, 0, 0)),
                 ((0, 90), (1, -1, 1), (-1, -1, 1)),
-                # at az=90, alt=90: base x = -pupil y, base y = - pupil z, base z = pupil x
+                # At az=90, alt=90: base x = -pupil y, base y = - pupil z,
+                # base z = pupil x.
                 ((90, 90), (1, 0, 0), (0, 0, 1)),
                 ((90, 90), (0, 1, 0), (-1, 0, 0)),
                 ((90, 90), (0, 0, -1), (0, 1, 0)),
                 ((90, 90), (1, -1, 1), (1, -1, 1)),
-                # at az=0, alt=45:
+                # At az=0, alt=45:
                 # base x = cos(30) * pupil x - sin(30) * pupil z
                 # base y = pupil y
-                # base z = sin(30) * pupil x + cos(30) * pupil z
+                # base z = sin(30) * pupil x + cos(30) * pupil z.
                 ((0, 30), (1, 0, 0), (cos30, 0, sin30)),
                 ((0, 30), (0, 1, 0), (0, 1, 0)),
                 ((0, 30), (0, 0, -1), (sin30, 0, -cos30)),
                 ((0, 30), (1, -1, 1), (cos30 - sin30, -1, sin30 + cos30)),
-                # at az=30, alt=0:
+                # At az=30, alt=0:
                 # base x = cos(30) * pupil x - sin(30) * pupil y
                 # base y = sin(30) * pupil x + cos(30) * pupil y
                 # base z = pupil z
@@ -266,8 +273,9 @@ class CoordUtilsTestCase(lsst.utils.tests.TestCase):
                 if sep.asRadians() > 1e-14:
                     print("Warning: sep={:0.5f} asec for vectorPupilScaled={}, vectorBaseScaled={}".format(
                           sep.asArcseconds(), vectorPupilScaled, vectorBaseScaled))
-                # the worst error I see is 0.0026" for vectorBase=(1, 0.7, -0.8)
-                # that's bad enough to scary, but is acceptable
+                # The worst error I see is 0.0026"
+                # for vectorBase=(1, 0.7, -0.8).
+                # That is worrisome, but acceptable.
                 self.assertLess(sep.asArcseconds(), 0.01)
 
     def testComputeAzAltFromPupilBase(self):
@@ -288,8 +296,9 @@ class CoordUtilsTestCase(lsst.utils.tests.TestCase):
                 vectorBaseScaled = np.array(vectorBase, dtype=float) * baseMagFactor
                 pupilAzAlt = coordUtils.computeAzAltFromBasePupil(vectorPupil=vectorPupilScaled,
                                                                   vectorBase=vectorBaseScaled)
-                # check the round trip; note that the magnitude of the returned vector
-                # will equal the magnitude of the input vector
+                # Check the round trip; note that the magnitude
+                # of the returned vector will equal
+                # the magnitude of the input vector.
                 vectorBaseRoundTrip = coordUtils.convertVectorFromPupilToBase(
                     vectorPupil=vectorPupilScaled,
                     pupilAzAlt=pupilAzAlt)
