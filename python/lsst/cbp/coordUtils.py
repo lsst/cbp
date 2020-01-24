@@ -363,8 +363,8 @@ def computeAzAltFromBasePupil(vectorBase, vectorPupil):
     # sideA can be small or zero so use a half angle formula
     # sides B and C will always be well away from 0 and 180 degrees
     semiPerimeter = 0.5*math.fsum((sideA, sideB, sideC))
-    sinHalfAngleA = math.sqrt(math.sin(semiPerimeter - sideB) * math.sin(semiPerimeter - sideC) /
-                              (math.sin(sideB) * math.sin(sideC)))
+    sinHalfAngleA = math.sqrt(math.sin(semiPerimeter - sideB) * math.sin(semiPerimeter - sideC)
+                              / (math.sin(sideB) * math.sin(sideC)))
     daz = 2*math.asin(sinHalfAngleA)*radians
     if spPupil[0].wrapCtr() > 0:
         daz = -daz
