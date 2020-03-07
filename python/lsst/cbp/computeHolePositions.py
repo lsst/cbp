@@ -65,7 +65,7 @@ def computeHolePositions(detectorNames, detectorPositions, cameraGeom, cbpFlipX,
     holePositions = []
     pixelPosList = [Point2D(*val) for val in detectorPositions]
     if detectorNames is None:
-        detectorNames = list(cameraGeom.getNameIter())
+        detectorNames = sorted(list(cameraGeom.getNameIter()))
     for detectorName in detectorNames:
         detector = cameraGeom[detectorName]
         pixelSys = detector.makeCameraSys(PIXELS)
