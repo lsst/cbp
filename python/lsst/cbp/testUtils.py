@@ -62,7 +62,7 @@ class SampleCoordinateConverter:
 
     Notes
     -----
-    **Fields:**
+    **Attributes**
 
     detectorWidthPix : `int`
         Width of each detector, in pixels.

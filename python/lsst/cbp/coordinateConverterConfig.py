@@ -116,7 +116,7 @@ class CoordinateConverterConfig:
 
     .. _fields:
 
-    **Fields:**
+    **Attributes**
 
     telPupilOffset : `float`
         Offset of the telescope :ref:`pupil plane
