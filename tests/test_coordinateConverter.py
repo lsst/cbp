@@ -460,9 +460,9 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
             self.assertSpherePointsAlmostEqual(self.cco.telAzAltInternal, predictedTelAzAltInternal)
 
         for telRotObserved in (0*degrees, -32*degrees, 167*degrees):
-            self.cco.rotAzAltObserved = telRotObserved
-            self.assertAnglesAlmostEqual(self.cco.rotAzAltObserved, telRotObserved)
-            predictedRotInternal = telRotObserved/self.cco.config.telRotScale - self.cco.config.telRotOffset
+            self.cco.telRotObserved = telRotObserved
+            self.assertAnglesAlmostEqual(self.cco.telRotObserved, telRotObserved)
+            predictedRotInternal = (telRotObserved - self.cco.config.telRotOffset)/self.cco.config.telRotScale
             self.assertAnglesAlmostEqual(self.cco.telRotInternal, predictedRotInternal)
 
     def testInBounds(self):
