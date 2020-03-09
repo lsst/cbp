@@ -24,11 +24,10 @@ __all__ = ["SampleCoordinateConverter"]
 
 import numpy as np
 
-import lsst.afw.cameraGeom as cameraGeom
-from lsst.afw.cameraGeom.cameraFactory import makeDetector
 import lsst.geom
 from lsst.afw.geom import makeRadialTransform
-from lsst.afw.table import AmpInfoCatalog, AmpInfoTable, LL
+from lsst.afw.cameraGeom import (Camera, Amplifier, FIELD_ANGLE, ReadoutCorner,
+                                 addDetectorBuilderFromConfig, DetectorConfig)
 from .coordinateConverterConfig import CoordinateConverterConfig
 from .coordinateConverter import CoordinateConverter
 from .computeHolePositions import computeHolePositions
@@ -63,7 +62,7 @@ class SampleCoordinateConverter:
 
     Notes
     -----
-    **Fields:**
+    **Attributes**
 
     detectorWidthPix : `int`
         Width of each detector, in pixels.
@@ -228,31 +227,40 @@ class SampleCoordinateConverter:
         radialCoeff = np.array([0.0, 1.0, 0.0, 0.925]) / self.plateScale.asRadians()
         fieldAngleToFocalPlane = makeRadialTransform(radialCoeff)
         focalPlaneToFieldAngle = fieldAngleToFocalPlane.inverted()
-        cameraTransformMap = cameraGeom.TransformMap(cameraGeom.FOCAL_PLANE,
-                                                     {cameraGeom.FIELD_ANGLE: focalPlaneToFieldAngle})
-        detectorList = self._makeDetectorList(focalPlaneToFieldAngle)
-        return cameraGeom.Camera("test", detectorList, cameraTransformMap)
 
-    def _makeDetectorList(self, focalPlaneToFieldAngle):
-        """Make a list of detectors.
+        cameraBuilder = Camera.Builder("testCamera")
+        cameraBuilder.setTransformFromFocalPlaneTo(FIELD_ANGLE, focalPlaneToFieldAngle)
+        ampBuilder = self._makeAmpBuilder()
 
-        Parameters
-        ----------
-        focalPlaneToFieldAngle : `lsst.afw.geom.TransformPoint2ToPoint2`
-            A transform from FOCAL_PLANE to FIELD_ANGLE coordinates
-            in the forward direction.
+        for i, fpPos in enumerate(self.detectorFracPosList):
+            detectorConfig = self._makeDetectorConfig(id=i, fpPos=fpPos)
+            addDetectorBuilderFromConfig(cameraBuilder, detectorConfig, [ampBuilder], focalPlaneToFieldAngle)
+
+        return cameraBuilder.finish()
+
+    def _makeAmpBuilder(self):
+        """Construct a trivial amplifier builder.
+
+        The CBP code does not care about the details of the amplifier, so this
+        builder is as simple as possible: one amplifier that covers the whole
+        CCD, with no overscan, and semi-plausible valus for everything else.
 
         Returns
         -------
-        A list of detectors, each an `lsst.afw.cameraGeom.Detector`.
+        ampBuilder : `lsst.afw.cameraGeom.Amplifier.Builder`
+            Amplifier builder.
         """
-        detectorList = []
-        for i, fpPos in enumerate(self.detectorFracPosList):
-            detectorConfig = self._makeDetectorConfig(id=i, fpPos=fpPos)
-            ampInfoCatalog = self._makeAmpInfoCatalog()
-            detector = makeDetector(detectorConfig, ampInfoCatalog, focalPlaneToFieldAngle)
-            detectorList.append(detector)
-        return detectorList
+        ampExtent = lsst.geom.Extent2I(self.detectorWidthPix, self.detectorHeightPix)
+        ampBBox = lsst.geom.Box2I(lsst.geom.Point2I(0, 0), ampExtent)
+
+        ampBuilder = Amplifier.Builder()
+        ampBuilder.setName("TestAmp")
+        ampBuilder.setBBox(ampBBox)
+        ampBuilder.setGain(1.8)
+        ampBuilder.setReadNoise(3.9)
+        ampBuilder.setReadoutCorner(ReadoutCorner.LL)
+
+        return ampBuilder
 
     def _makeDetectorConfig(self, id, fpPos):
         """Make a detector config for one detector.
@@ -278,7 +286,7 @@ class SampleCoordinateConverter:
                                lsst.geom.Extent2I(self.detectorWidthPix, self.detectorHeightPix))
         ctr = lsst.geom.Box2D(bbox).getCenter()
         pixelSizeMm = 0.01
-        config = cameraGeom.DetectorConfig()
+        config = DetectorConfig()
         config.name = "D{}".format(id)
         config.id = id
         # detector serial number is not used by the CBP code,
@@ -302,49 +310,3 @@ class SampleCoordinateConverter:
         config.yawDeg = 0.0
         config.rollDeg = 0.0
         return config
-
-    def _makeAmpInfoCatalog(self):
-        """Construct a trivial amplifier information catalog.
-
-        The CBP code makes no use of this catalog, so it is as simple
-        as possible: one amplifiers that covers the whole CCD,
-        with no overscan, and semi-plausible values for everything else.
-
-        Returns
-        -------
-        ampInfo : `lsst.afw.cameraGeom.AmpInfoCatalog`
-            Amplifier information catalog.
-        """
-        ampExtent = lsst.geom.Extent2I(self.detectorWidthPix, self.detectorHeightPix)
-        saturationLevel = 65535
-        linearityType = cameraGeom.NullLinearityType
-        linearityCoeffs = [0, 0, 0, 0]
-
-        schema = AmpInfoTable.makeMinimalSchema()
-
-        self.ampInfoDict = {}
-        ampCatalog = AmpInfoCatalog(schema)
-        gain = 1.8
-        readNoise = 3.9
-        record = ampCatalog.addNew()
-        record.setName("0")
-        ampBBox = lsst.geom.Box2I(lsst.geom.Point2I(0, 0), ampExtent)
-        record.setBBox(ampBBox)
-        readCorner = LL
-        record.setRawBBox(ampBBox)
-        record.setRawDataBBox(ampBBox)
-        record.setRawHorizontalOverscanBBox(lsst.geom.Box2I())
-        record.setRawXYOffset(lsst.geom.Extent2I(0, 0))
-        record.setReadoutCorner(readCorner)
-        record.setGain(gain)
-        record.setReadNoise(readNoise)
-        record.setSaturation(saturationLevel)
-        record.setSuspectLevel(float("nan"))
-        record.setLinearityCoeffs([float(val) for val in linearityCoeffs])
-        record.setLinearityType(linearityType)
-        record.setHasRawInfo(True)
-        record.setRawFlipX(False)
-        record.setRawFlipY(False)
-        record.setRawVerticalOverscanBBox(lsst.geom.Box2I())
-        record.setRawPrescanBBox(lsst.geom.Box2I())
-        return ampCatalog

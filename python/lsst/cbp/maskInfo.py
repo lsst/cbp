@@ -55,7 +55,7 @@ class MaskInfo:
 
     Notes
     -----
-    **Fields:**
+    **Attributes**
 
     name : `str`
         Name of mask.

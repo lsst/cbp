@@ -39,11 +39,11 @@ def computeHolePositions(detectorNames, detectorPositions, cameraGeom, cbpFlipX,
     Parameters
     ----------
     detectorNames : `iterable` of `str`, or None,
-        List of detector names; if None, use all detectors
-        in ``cameraGeom``.
+        List of detector names; if None, use all detectors in ``cameraGeom``,
+        sorted by name.
     detectorPositions : `iterable` of pair of `float`
         Detector x, y positions (pixels).
-        Note that the center of a 1kx1k detector is (499.5, 499.5)
+        Note that the center of a 1000x1000 pixel detector is (499.5, 499.5)
     cameraGeom : `lsst.afw.cameraGeom.Camera`
         Camera geometry.
     cbpFlipX : `bool`
@@ -65,7 +65,7 @@ def computeHolePositions(detectorNames, detectorPositions, cameraGeom, cbpFlipX,
     holePositions = []
     pixelPosList = [Point2D(*val) for val in detectorPositions]
     if detectorNames is None:
-        detectorNames = list(cameraGeom.getNameIter())
+        detectorNames = sorted(list(cameraGeom.getNameIter()))
     for detectorName in detectorNames:
         detector = cameraGeom[detectorName]
         pixelSys = detector.makeCameraSys(PIXELS)

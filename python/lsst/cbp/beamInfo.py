@@ -61,7 +61,7 @@ class BeamInfo:
     -----
     .. _fields:
 
-    **Fields:**
+    **Attributes**
 
     name : `str`
         Name of beam.

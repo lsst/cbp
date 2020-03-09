@@ -172,8 +172,8 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
         """Test basic elements of the sample coordinate converter
         """
         self.assertEqual(len(self.cco.cameraGeom), len(self.scc.detectorFracPosList))
-        self.assertEqual(list(self.cco.cameraGeom.getNameIter()),
-                         ["D" + str(i) for i in range(len(self.scc.detectorFracPosList))])
+        self.assertEqual(set(self.cco.cameraGeom.getNameIter()),
+                         set("D" + str(i) for i in range(len(self.scc.detectorFracPosList))))
         self.assertEqual(len(self.cco), 6)
         self.assertEqual(tuple(self.cco.beamNames), ("beam0", "beam1", "beam2", "beam3", "beam4", "beam5"))
         self.assertEqual(self.cco.maskInfo.numHoles, 6)
@@ -460,9 +460,9 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
             self.assertSpherePointsAlmostEqual(self.cco.telAzAltInternal, predictedTelAzAltInternal)
 
         for telRotObserved in (0*degrees, -32*degrees, 167*degrees):
-            self.cco.rotAzAltObserved = telRotObserved
-            self.assertAnglesAlmostEqual(self.cco.rotAzAltObserved, telRotObserved)
-            predictedRotInternal = telRotObserved/self.cco.config.telRotScale - self.cco.config.telRotOffset
+            self.cco.telRotObserved = telRotObserved
+            self.assertAnglesAlmostEqual(self.cco.telRotObserved, telRotObserved)
+            predictedRotInternal = (telRotObserved - self.cco.config.telRotOffset)/self.cco.config.telRotScale
             self.assertAnglesAlmostEqual(self.cco.telRotInternal, predictedRotInternal)
 
     def testInBounds(self):
