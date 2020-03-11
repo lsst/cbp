@@ -1,4 +1,3 @@
-setupRequired(numpy)
 setupRequired(geom)
 setupRequired(sphgeom)
 setupRequired(afw)
