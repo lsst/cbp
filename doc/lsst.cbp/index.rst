@@ -29,5 +29,13 @@ Python API reference
 ====================
 
 .. automodapi:: lsst.cbp
+   :no-main-docstr:
+   :no-inheritance-diagram:
+
 .. automodapi:: lsst.cbp.coordUtils
+   :no-main-docstr:
+   :no-inheritance-diagram:
+
 .. automodapi:: lsst.cbp.testUtils
+   :no-main-docstr:
+   :no-inheritance-diagram:
