@@ -269,7 +269,7 @@ class SampleCoordinateConverter:
         ----------
         id : `int`
             Detector ID.
-        fpPos : pair of `float`
+        fpPos : trio of `float`
             Focal plane position of detector, in units of detector
             width/height. For example:
 
@@ -305,6 +305,7 @@ class SampleCoordinateConverter:
         config.refpos_y = ctr[1]
         config.offset_x = fpPos[0] * pixelSizeMm * self.detectorWidthPix
         config.offset_y = fpPos[1] * pixelSizeMm * self.detectorHeightPix
+        config.offset_z = 0.0  # No displacement along optic axis
         config.transposeDetector = False
         config.pitchDeg = 0.0
         config.yawDeg = 0.0
