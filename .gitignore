@@ -11,3 +11,4 @@ tests/.tests
 version.py
 .eggs
 *.egg-info
+python/*.dist-info/
