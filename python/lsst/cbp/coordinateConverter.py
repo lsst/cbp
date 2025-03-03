@@ -830,7 +830,7 @@ class CoordinateConverter:
 
         # Compute focal plane position of the beam.
         focalPlanePos = self._fieldAngleToFocalPlane.applyForward(Point2D(*pupilFieldAngle))
-        isOnFocalPlane = math.hypot(*focalPlanePos) < self.config.telFocalPlaneDiameter
+        isOnFocalPlane = math.hypot(*focalPlanePos) < self.config.telFocalPlaneDiameter/2
 
         # Vector from telescope centered pupil to actual pupil.
         pupilOffset = np.array((self.config.telPupilOffset, 0, 0), dtype=float)
@@ -850,8 +850,8 @@ class CoordinateConverter:
         pupilPos = coordUtils.getFlippedPos((pupilPosVector[1], pupilPosVector[2]),
                                             flipX=self.config.telFlipX)
         pupilPosDiameter = math.hypot(*pupilPos)
-        isOnPupil = self.config.telPupilObscurationDiameter <= pupilPosDiameter and \
-            pupilPosDiameter <= self.config.telPupilDiameter
+        isOnPupil = self.config.telPupilObscurationDiameter/2 <= pupilPosDiameter and \
+            pupilPosDiameter <= self.config.telPupilDiameter/2
         return BeamInfo(
             cameraGeom=self.cameraGeom,
             name=beam,

@@ -329,7 +329,7 @@ class CoordConverterTestCase(lsst.utils.tests.TestCase):
         """Test setPupilFieldAngle for zero field angle
         and various points on the pupil.
         """
-        for pupilPos in ((0, 5000), (-5000, 0), (5000, -5000)):
+        for pupilPos in ((0, 2500), (-2500, 0), (2500, -2500)):
             with self.subTest(pupilPos=pupilPos):
                 self.cco.setPupilFieldAngle(pupilPos=pupilPos)
 
