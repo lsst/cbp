@@ -76,7 +76,6 @@ def getRecordedErrors():
         - vectorBase
         - vectorPupil
     """
-    global _ErrorList
     if _ErrorList is None:
         raise RuntimeError("Errors were never recorded")
     return sorted(_ErrorList, key=lambda elt: elt[0])
@@ -369,9 +368,7 @@ def computeAzAltFromBasePupil(vectorBase, vectorPupil):
     if spPupil[0].wrapCtr() > 0:
         daz = -daz
     az = spBase[0] + daz
-    global _RecordError
     if _RecordError:  # to study sources of numerical imprecision
-        global _ErrorLimitArcsec, _ErrorList
         sp = SpherePoint(az, alt)
         vectorBaseRT = convertVectorFromPupilToBase(vectorPupil, sp)
         errorArcsec = SpherePoint(Vector3d(*vectorBaseRT)).separation(
