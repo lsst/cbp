@@ -299,7 +299,7 @@ class CoordinateConverter:
             # is the one that is used.
             err = funcToFindRoot(iterResult.x)
 
-            global _RecordErrors, _ErrorList
+            global _RecordErrors, _ErrorList  # noqa: F824
             if _RecordErrors:
                 _ErrorList.append((abs(err), pupilPos, focalFieldAngle, beam))
 
