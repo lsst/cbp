@@ -1,3 +1,3 @@
 # -*- python -*-
 from lsst.sconsUtils import scripts
-scripts.BasicSConstruct("cbp", disableCc=True)
+scripts.BasicSConstruct("cbp", disableCc=True, noCfgFile=True)
